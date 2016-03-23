@@ -6,8 +6,20 @@ define( 'FACETWP_CACHE', true );
 
 $action = isset( $_POST['action'] ) ? $_POST['action'] : '';
 $data = isset( $_POST['data'] ) ? $_POST['data'] : array();
+$no_cache_capabilities = apply_filters('facetwp_cache_nocache_capabilities',array());
 
-if ( 'facetwp_refresh' == $action ) {
+//Check to see if current user should not be returned cached data
+$cache_enabled = true;
+if(count($no_cache_users)){
+    foreach($no_cache_capabilities AS $capability){
+        if(current_user_can($capability)){
+            $cache_enabled = false;
+            break;
+        }
+    }
+}
+
+if ( 'facetwp_refresh' == $action && $cache_enabled) {
 
     global $table_prefix;
     $wpdb = new wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
